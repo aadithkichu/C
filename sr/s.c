@@ -77,9 +77,20 @@ int main() {
                         sprintf(resend_buff, "Frame %d", k);
                         write(c_sock, resend_buff, sizeof(resend_buff));
                     } else {
-                        // Success!
-                        ack_received = 1;
-                        tot++; 
+                        int ack_num;
+                        // Extract the number from the string "ACK X"
+                        if (sscanf(recv_buff, "ACK %d", &ack_num) == 1) {
+                            
+                            // ONLY accept it if it matches the 'k' we are waiting for
+                            if (ack_num == k) {
+                                ack_received = 1;
+                                tot++; 
+                                printf("[+] Successfully verified ACK for Frame %d\n", k);
+                            } else {
+                                // If it's the wrong ACK, ignore it and let the timeout handle 'k'
+                                printf("[!] Received ACK %d, but still waiting for ACK %d. Ignoring.\n", ack_num, k);
+                            }
+                        }
                     }
                 }
             }
